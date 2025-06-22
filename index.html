@@ -9,8 +9,24 @@
     body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; color: #333; }
     header {
       background: linear-gradient(90deg, #1b2838, #2a4b67);
-      color: white; padding: 1rem;
-      text-align: center; font-size: 1.5rem;
+      color: white; padding: 1rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap;
+    }
+    .menu {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .menu button {
+      background: #66c0f4;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .menu button:hover {
+      background: #4aa8d4;
     }
     .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(250px,1fr)); gap: 1.5rem; }
@@ -29,7 +45,6 @@
     .card-content h3 { margin-bottom: 0.5rem; font-size: 1.1rem; }
     .card-content .price { font-size: 1.2rem; color: #e94560; margin-bottom: 0.5rem; }
     .card-content .original { text-decoration: line-through; color: #777; font-size: 0.9rem; }
-    .card-content .genre { font-size: 0.9rem; color: #555; margin-bottom: 0.5rem; }
     .card-content .btn {
       margin-top: auto;
       display: inline-block;
@@ -44,14 +59,24 @@
   </style>
 </head>
 <body>
-  <header>🔥 Diskon Game Steam (Perbulan Juni)</header>
+  <header>
+    <div>🔥 Diskon Game Steam (Perbulan Juni)</div>
+    <div class="menu">
+      <button onclick="filterGames('free')">🎮 Gratis</button>
+      <button onclick="filterGames('under50')">💸 Di Bawah 50K</button>
+      <button onclick="filterGames('range50to100')">💰 50K - 100K</button>
+      <button onclick="filterGames('range100to500')">💰 100K - 500K</button>
+      <button onclick="renderGames()">🔁 Semua</button>
+    </div>
+  </header>
+
   <div class="container">
     <div id="gamesGrid" class="grid"></div>
   </div>
 
   <script>
     const games = [
-      {
+    {
         title: "[NINJA GAIDEN: Master Collection] NINJA GAIDEN Σ2",
         appId: "1580790",
         genre: "FPS",
@@ -275,28 +300,46 @@
         discount: "Rp 47.800",
         original: "Rp 239.000",
       },
-      
-      
     ];
 
-    function renderGames() {
+    function parseHarga(str) {
+      return parseInt(str.replace(/[^\d]/g, '')) || 0;
+    }
+
+    function renderGames(filter = null) {
       const grid = document.getElementById('gamesGrid');
+      grid.innerHTML = '';
+
       games.forEach(g => {
+        const harga = parseHarga(g.discount);
+
+        if (
+          (filter === 'free' && harga > 0) ||
+          (filter === 'under50' && harga >= 50000) ||
+          (filter === 'range50to100' && (harga < 50000 || harga > 100000)) ||
+          (filter === 'range100to500' && (harga < 100000 || harga > 500000))
+        ) return;
+
         const image = `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appId}/header.jpg`;
         const steamLink = `steam://store/${g.appId}`;
+
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
           <img src="${image}" alt="${g.title}" onerror="this.src='https://via.placeholder.com/300x140?text=No+Image'" />
           <div class="card-content">
             <h3>${g.title}</h3>
-           
-            <div class="price">${g.discount}</div>
+            <div class="price">Rp ${harga.toLocaleString("id-ID")}</div>
             <div class="original">${g.original}</div>
             <a href="${steamLink}" class="btn">Buka di Steam</a>
-          </div>`;
+          </div>
+        `;
         grid.appendChild(card);
       });
+    }
+
+    function filterGames(mode) {
+      renderGames(mode);
     }
 
     renderGames();
