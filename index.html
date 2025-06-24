@@ -625,7 +625,7 @@
 
         if (
           (filter === 'free' && harga > 0) ||
-          (filter === 'range1to50' && (harga < 1 ||harga > 50000) ||
+          (filter === 'under50' && harga > 50000) ||
           (filter === 'range50to100' && (harga < 50000 || harga > 100000)) ||
           (filter === 'range100to500' && (harga < 100000 || harga > 500000))
         ) return;
