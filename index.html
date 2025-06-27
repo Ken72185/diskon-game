@@ -21,6 +21,20 @@
       flex-wrap: wrap;
       box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
+    header input[type="text"] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #334155; /* Warna border */
+  border-radius: 9999px; /* Sudut melengkung */
+  background: #1e293b; /* Warna latar belakang */
+  color: #e5e7eb; /* Warna teks */
+  font-size: 0.85rem; /* Ukuran font */
+  transition: border 0.3s, background 0.3s;
+  margin-left: 1rem; /* Jarak dari tombol */
+}
+header input[type="text"]:focus {
+  outline: none; /* Menghilangkan outline default */
+  border-color: #4f46e5; /* Warna border saat fokus */
+  background: #2a3748; /* Warna latar belakang saat fokus *
     .countdown-container {
       margin: 1rem 2rem;
       text-align: center;
@@ -137,14 +151,18 @@
       <button onclick="filterGames('range100to500')">💰 100K - 500K</button>
       <button onclick="renderGames()">🔁 Semua</button>
     </div>
+    <input type="text" id="searchInput" placeholder="Cari game..." oninput="searchGames()" />
   </header>
+  
   <div class="countdown-container">
     <div class="countdown-title">Summer Sale 2025 akan habis dari:</div>
     <div class="countdown" id="countdown"></div>
   </div>
+  
   <div class="container">
     <div id="gamesGrid" class="grid"></div>
   </div>
+  
   <script>
     const games = [ {
       title: "Crash Bandicoot™ N. Sane Trilogy",
@@ -1319,8 +1337,7 @@
         original: "Rp 349.999",
     },
    ];
- 
-    
+   
 
     function parseHarga(str) {
       return parseInt(str.replace(/[^\d]/g, '')) || 0;
@@ -1329,6 +1346,7 @@
     function renderGames(filter = null) {
       const grid = document.getElementById('gamesGrid');
       grid.innerHTML = '';
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
       games.forEach(g => {
         const harga = parseHarga(g.discount);
@@ -1340,22 +1358,27 @@
           (filter === 'range100to500' && (harga < 100000 || harga > 500000))
         ) return;
 
-        const image = `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appId}/header.jpg`;
-        const steamLink = `steam://store/${g.appId}`;
+        if (g.title.toLowerCase().includes(searchTerm)) {
+          const image = `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appId}/header.jpg`;
+          const steamLink = `steam://store/${g.appId}`;
 
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img src="${image}" alt="${g.title}" onerror="this.src='https://via.placeholder.com/300x140?text=No+Image'" />
-          <div class="card-content">
-            <h3>${g.title}</h3>
-            <div class="price">Rp ${harga.toLocaleString("id-ID")}</div>
-            
-            <a href="${steamLink}" class="btn">Buka di Steam</a>
-          </div>
-        `;
-        grid.appendChild(card);
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <img src="${image}" alt="${g.title}" onerror="this.src='https://via.placeholder.com/300x140?text=No+Image'" />
+            <div class="card-content">
+              <h3>${g.title}</h3>
+              <div class="price">Rp ${harga.toLocaleString("id-ID")}</div>
+              <a href="${steamLink}" class="btn">Buka di Steam</a>
+            </div>
+          `;
+          grid.appendChild(card);
+        }
       });
+    }
+
+    function searchGames() {
+      renderGames();
     }
 
     function filterGames(mode) {
