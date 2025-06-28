@@ -120,11 +120,6 @@
       margin-bottom: 0.5rem;
       font-weight: bold;
     }
-    .card-content .original {
-      text-decoration: line-through;
-      color: #9ca3af;
-      font-size: 0.9rem;
-    }
     .card-content .btn {
       margin-top: auto;
       display: inline-block;
@@ -1487,7 +1482,6 @@
     },
    ];
     
-      
 
     function parseHarga(str) {
       return parseInt(str.replace(/[^\d]/g, '')) || 0;
@@ -1500,13 +1494,13 @@
 
       const filteredGames = games.filter(g => {
         const harga = parseHarga(g.discount);
-        return (
-          (filter === 'free' && harga > 0) ||
-          (filter === 'under50' && harga > 50000) ||
-          (filter === 'range50to100' && (harga < 50000 || harga > 100000)) ||
-          (filter === 'range100to500' && (harga < 100000 || harga > 500000)) ||
-          g.title.toLowerCase().includes(searchTerm)
-        );
+        const isFree = filter === 'free' && harga === 0;
+        const isUnder50 = filter === 'under50' && harga < 50000;
+        const isRange50to100 = filter === 'range50to100' && harga >= 50000 && harga <= 100000;
+        const isRange100to500 = filter === 'range100to500' && harga > 100000 && harga <= 500000;
+        const matchesSearch = g.title.toLowerCase().includes(searchTerm); // Perbaikan di sini
+
+        return (isFree || isUnder50 || isRange50to100 || isRange100to500 || !filter) && matchesSearch;
       });
 
       filteredGames.forEach(g => {
